@@ -15,7 +15,7 @@ describe("Check if merkle root is working", function () {
   it("Should be able to verify if a given address is in whitelist or not", async function () {
   
     // Get a bunch of test addresses
-    const [owner, addr1, addr2, addr3, addr4, addr5] =
+    const [owner, addr1, addr2, addr3, addr4, addr5, addr6, addr7] =
       await ethers.getSigners();
     
     // Create an array of elements you wish to encode in the Merkle Tree
@@ -26,6 +26,8 @@ describe("Check if merkle root is working", function () {
       encodeLeaf(addr3.address, 2),
       encodeLeaf(addr4.address, 2),
       encodeLeaf(addr5.address, 2),
+      encodeLeaf(addr6.address, 2),
+      encodeLeaf(addr7.address, 2),
     ];
 
     // Create the Merkle Tree using the hashing algorithm `keccak256`
@@ -37,6 +39,9 @@ describe("Check if merkle root is working", function () {
     });
     // Compute the Merkle Root
     const merkleRoot = merkleTree.getHexRoot();
+
+    console.log("Merkle tree: ", merkleTree.toString());
+    console.log("Merkle root: ", merkleRoot);
 
     // Deploy the Whitelist contract
     const whitelist = await ethers.getContractFactory("Whitelist");
