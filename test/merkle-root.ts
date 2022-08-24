@@ -19,7 +19,7 @@ describe("Check if merkle root is working", function () {
       await ethers.getSigners();
     
     // Create an array of elements you wish to encode in the Merkle Tree
-    const list = [
+    const addressList = [
       encodeLeaf(owner.address, 2),
       encodeLeaf(addr1.address, 2),
       encodeLeaf(addr2.address, 2),
@@ -31,31 +31,36 @@ describe("Check if merkle root is working", function () {
     // Create the Merkle Tree using the hashing algorithm `keccak256`
     // Make sure to sort the tree so that it can be produced deterministically regardless
     // of the order of the input list
-    const merkleTree = new MerkleTree(list, keccak256, {
+    const merkleTree = new MerkleTree(addressList, keccak256, {
       hashLeaves: true,
       sortPairs: true,
     });
     // Compute the Merkle Root
-    const root = merkleTree.getHexRoot();
+    const merkleRoot = merkleTree.getHexRoot();
 
     // Deploy the Whitelist contract
     const whitelist = await ethers.getContractFactory("Whitelist");
-    const Whitelist = await whitelist.deploy(root);
+    const Whitelist = await whitelist.deploy(merkleRoot);
     await Whitelist.deployed();
 
     // Compute the Merkle Proof of the owner address (0'th item in list)
     // off-chain. The leaf node is the hash of that value.
-    const leaf = keccak256(list[0]);
+    const leaf = keccak256(addressList[0]);
     const proof = merkleTree.getHexProof(leaf);
 
     // Provide the Merkle Proof to the contract, and ensure that it can verify
     // that this leaf node was indeed part of the Merkle Tree
-    let verified = await Whitelist.checkInWhitelist(proof, 2);
-    expect(verified).to.equal(true);
-    
+    let verifiedList = await Whitelist.checkInWhitelist(proof, 2);
+    expect(verifiedList).to.equal(true);
+
     // Provide an invalid Merkle Proof to the contract, and ensure that
     // it can verify that this leaf node was NOT part of the Merkle Tree
-    verified = await Whitelist.checkInWhitelist([], 2);
-    expect(verified).to.equal(false);
+    verifiedList = await Whitelist.checkInWhitelist([], 5);
+    expect(verifiedList).to.equal(false);
+
+    // Provide an invalid Merkle Proof to the contract, and ensure that
+    // it can verify that this leaf node was NOT part of the Merkle Tree
+    verifiedList = await Whitelist.checkInWhitelist([], 2);
+    expect(verifiedList).to.equal(false);
   });
 });
