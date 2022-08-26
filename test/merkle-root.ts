@@ -30,9 +30,6 @@ describe("Check if merkle root is working", function () {
       encodeLeaf(addr7.address, 2),
     ];
 
-    // Create the Merkle Tree using the hashing algorithm `keccak256`
-    // Make sure to sort the tree so that it can be produced deterministically regardless
-    // of the order of the input list
     const merkleTree = new MerkleTree(addressList, keccak256, {
       hashLeaves: true,
       sortPairs: true,
@@ -48,23 +45,15 @@ describe("Check if merkle root is working", function () {
     const Whitelist = await whitelist.deploy(merkleRoot);
     await Whitelist.deployed();
 
-    // Compute the Merkle Proof of the owner address (0'th item in list)
-    // off-chain. The leaf node is the hash of that value.
     const leaf = keccak256(addressList[0]);
     const proof = merkleTree.getHexProof(leaf);
 
-    // Provide the Merkle Proof to the contract, and ensure that it can verify
-    // that this leaf node was indeed part of the Merkle Tree
     let verifiedList = await Whitelist.checkInWhitelist(proof, 2);
     expect(verifiedList).to.equal(true);
 
-    // Provide an invalid Merkle Proof to the contract, and ensure that
-    // it can verify that this leaf node was NOT part of the Merkle Tree
     verifiedList = await Whitelist.checkInWhitelist([], 5);
     expect(verifiedList).to.equal(false);
 
-    // Provide an invalid Merkle Proof to the contract, and ensure that
-    // it can verify that this leaf node was NOT part of the Merkle Tree
     verifiedList = await Whitelist.checkInWhitelist([], 2);
     expect(verifiedList).to.equal(false);
   });

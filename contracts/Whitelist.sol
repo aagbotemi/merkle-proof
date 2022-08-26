@@ -13,14 +13,14 @@ contract Whitelist is ERC721URIStorage {
     bytes32 public merkleRoot;
     uint256 MAX_SUPPLY = 20;
 
-    mapping(address => bool) whitelistClaimed;
+    mapping(address => uint) whitelistClaimed;
 
     constructor(bytes32 _merkleRoot) ERC721("AbiodunAwoyemi", "AA")  {
         merkleRoot = _merkleRoot;
     }
 
     function checkInWhitelist(bytes32[] calldata proof, uint64 maxAllowanceToMint) public view returns (bool verified) {
-        require(!whitelistClaimed[msg.sender], "You've already minted NFT!");
+        require(!whitelistClaimed[msg.sender] >= maxAllowanceToMint, "You've already minted maximum number of NFT!");
         bytes32 leaf = keccak256(abi.encode(msg.sender, maxAllowanceToMint));
         verified = MerkleProof.verify(proof, merkleRoot, leaf);
     }
@@ -29,7 +29,7 @@ contract Whitelist is ERC721URIStorage {
 
         bool status = checkInWhitelist(_merkleProof, maxAllowanceToMint);
 
-        require(status, "Invaild Proof");
+        require(status, "Invalid Proof");
 
         uint256 tokenId = _myCounter.current();
         require(tokenId <= MAX_SUPPLY, "Sorry, all NFTs have been minted!");
@@ -37,6 +37,6 @@ contract Whitelist is ERC721URIStorage {
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
 
-        whitelistClaimed[msg.sender] = true;
+        whitelistClaimed[msg.sender]++;
     }
 }

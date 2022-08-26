@@ -40,16 +40,7 @@ async function main() {
 
   console.log(`Whitelist is deployed to ${whitelist.address}`);
 
-  // const leaf = keccak256(addressList[0]);
-  // const proof = merkleTree.getHexProof(leaf);
 
-  // let verifiedList = await whitelist.checkInWhitelist(proof, 2);
-  // console.log("VERIFIED LIST: ", verifiedList);
-
-  // let uri =
-  //   "https://gateway.pinata.cloud/ipfs/Qmav5akQh5ZzWZ1UKAQ66LaXZZFnYqC3GYw6xVVJiXfQfu";
-  // let minted = await whitelist.safeMint(uri, proof, 2);
-  // console.log("MINTED NFT: ", minted);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
